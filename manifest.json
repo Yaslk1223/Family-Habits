@@ -1,0 +1,16 @@
+{
+  "name": "一起撐下去",
+  "short_name": "一起撐",
+  "description": "家人習慣打卡：每週幾次，一起守住。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF4EA",
+  "theme_color": "#C4502F",
+  "lang": "zh-Hant-TW",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

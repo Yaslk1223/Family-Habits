@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>一起撐下去</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#FBF4EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17130F" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="一起撐下去">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF4EA; --surface: #FFFFFF; --surface2: #F4E9DB;
+    --ink: #221B15; --ink2: #6E5F51; --ink3: #9C8B79; --line: rgba(34,27,21,0.10);
+    --accent: #C4502F; --accent-soft: #FAE2D8; --on-accent: #FFF8F3;
+    --good: #43704D; --good-soft: #E2EDDF;
+    --rest: #8A7757; --rest-soft: #F1E7D2;
+    --shadow: 0 2px 3px rgba(34,27,21,0.04), 0 10px 24px rgba(34,27,21,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17130F; --surface: #221C17; --surface2: #2C241C;
+      --ink: #F6EEE4; --ink2: #B3A292; --ink3: #8A7A6B; --line: rgba(246,238,228,0.12);
+      --accent: #F07E5C; --accent-soft: #3A231A; --on-accent: #1A0F09;
+      --good: #86BA8C; --good-soft: #1E2A20;
+      --rest: #C6AC80; --rest-soft: #2A2317;
+      --shadow: 0 2px 3px rgba(0,0,0,0.3), 0 12px 28px rgba(0,0,0,0.35);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: 'Noto Sans TC', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #app { min-height: 100%; position: relative; }
+  .serif { font-family: 'Instrument Serif', serif; }
+  .screen { min-height: 100vh; padding: calc(env(safe-area-inset-top) + 28px) 20px calc(env(safe-area-inset-bottom) + 108px); }
+  .btn { cursor: pointer; user-select: none; border: 0; font: inherit; }
+  .cta { display: block; width: 100%; padding: 17px; border-radius: 18px; background: var(--accent); color: var(--on-accent); text-align: center; font-size: 16.5px; font-weight: 700; transition: opacity .2s, transform .1s; }
+  .cta:active { transform: scale(.98); }
+  .cta[disabled] { opacity: .45; }
+  .card { padding: 22px; border-radius: 26px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .chip { cursor: pointer; font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface2); color: var(--ink); }
+  .chip.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .label { font-size: 12.5px; font-weight: 700; color: var(--ink2); }
+  .label small { font-weight: 400; color: var(--ink3); margin-left: 6px; font-size: 12px; }
+  .hint { font-size: 12px; line-height: 1.6; color: var(--ink3); }
+  .field { width: 100%; padding: 13px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface2); color: var(--ink); font: inherit; font-size: 14px; }
+  .field:focus { outline: none; border-color: var(--accent); }
+  .stepper { display: flex; align-items: center; justify-content: space-between; padding: 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); }
+  .stepbtn { width: 44px; height: 44px; border-radius: 14px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--ink); }
+  .bar { height: 10px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 999px; transition: width .5s cubic-bezier(.2,.9,.2,1); }
+  .tabs { position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 26px calc(env(safe-area-inset-bottom) + 14px); background: var(--bg); border-top: 1px solid var(--line); display: flex; }
+  .tab { flex: 1; text-align: center; padding: 9px 0; font-size: 11.5px; font-weight: 700; color: var(--ink3); background: none; }
+  .tab.on { color: var(--accent); }
+  .tab div { font-size: 17px; margin-bottom: 2px; }
+  .overlay { position: fixed; inset: 0; z-index: 40; background: rgba(20,14,10,0.5); display: flex; align-items: flex-end; animation: fade .18s ease; }
+  .overlay.center { align-items: center; justify-content: center; padding: 26px; }
+  .sheet { width: 100%; background: var(--surface); border-radius: 28px 28px 0 0; padding: 12px 22px calc(env(safe-area-inset-bottom) + 34px); animation: rise .26s cubic-bezier(.2,.9,.2,1); max-height: 92vh; overflow: auto; }
+  .modal { width: 100%; max-width: 420px; background: var(--surface); border-radius: 26px; padding: 24px; animation: pop .24s ease; }
+  .grip { width: 40px; height: 4px; border-radius: 999px; background: var(--line); margin: 0 auto 16px; }
+  .spin { width: 40px; height: 40px; border-radius: 999px; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+  .photo-box { cursor: pointer; width: 100%; height: 160px; border-radius: 20px; border: 1px dashed var(--line); background: var(--surface2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--ink3); overflow: hidden; position: relative; }
+  .photo-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .photo-box .tag { position: absolute; bottom: 10px; right: 10px; background: var(--good); color: #fff; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
+  .entry { display: flex; gap: 13px; padding: 14px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); }
+  .entry img, .entry .noimg { width: 62px; height: 62px; border-radius: 14px; background: var(--surface2); flex-shrink: 0; object-fit: cover; }
+  .center { text-align: center; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .grow { flex: 1; min-width: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes rise { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes pop { 0% { transform: scale(.86); opacity: 0; } 60% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input id="file" type="file" accept="image/*" hidden>
+
+<script>
+// ====== 設定 ======
+const API = 'https://script.google.com/macros/s/AKfycbwDe-Syejf-oEuqCzljbgugfiBL0uv7gg38TCmEUrATW2KvFpeWAbOoGf6ebeDnk1l64w/exec'; // 部署 Apps Script 後，把 /exec 網址貼在這裡
+const PRESETS = { '跑步': '至少 30 分鐘', '重訓': '至少 45 分鐘', '早睡': '11 點前上床', '吃蔬菜': '三餐都有蔬菜', '冥想': '至少 10 分鐘' };
+const PRESET_RULES = Object.values(PRESETS);
+const DUR_CHIPS = [15, 30, 45, 60];
+const WEEKS = 8;
+
+// ====== 狀態 ======
+const S = {
+  data: null,           // 伺服器狀態：today, thisWeek, members, goals, checkins
+  loading: true, loadError: '',
+  me: localStorage.getItem('me') || null,
+  screen: 'who',        // who | setup | app
+  tab: 'week',          // week | detail
+  viewId: null,
+  ob: { habit: '跑步', target: 3, rule: '至少 30 分鐘' },
+  sheet: null,          // null | form | sending | error | done
+  form: { photo: '', minutes: 0, note: '' },
+  goalOpen: false, goalDraft: 3,
+  celebrate: false, busy: false,
+};
+const $ = (sel) => document.querySelector(sel);
+const app = $('#app');
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// ====== API ======
+async function apiGet() {
+  const r = await fetch(API, { cache: 'no-store' });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'load failed');
+  return j;
+}
+// 不設 Content-Type，維持 text/plain 就不會觸發 CORS preflight
+async function apiPost(body) {
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'request failed');
+  return j;
+}
+
+// 送失敗的打卡先存手機，下次打開再送
+function queue() { try { return JSON.parse(localStorage.getItem('queue') || '[]'); } catch { return []; } }
+function setQueue(q) { localStorage.setItem('queue', JSON.stringify(q)); }
+async function flushQueue() {
+  let q = queue();
+  while (q.length) {
+    try { S.data = await apiPost(q[0]); q = q.slice(1); setQueue(q); }
+    catch { break; }
+  }
+}
+
+// ====== 週次計算（鍵值 = 週一日期 yyyy-mm-dd，全部用 UTC 做純日期運算）======
+function addDays(key, n) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+function md(key) { const [, m, d] = key.split('-').map(Number); return m + '/' + d; }
+function weekday(iso) { return ['週日', '週一', '週二', '週三', '週四', '週五', '週六'][new Date(iso).getDay()]; }
+function weekKeys() { const w = S.data.thisWeek; return Array.from({ length: WEEKS }, (_, i) => addDays(w, -7 * (WEEKS - 1 - i))); }
+
+// ====== 衍生資料 ======
+function member(id) { return S.data.members.find(m => String(m.id) === String(id)); }
+function goalFor(id, week) {
+  let hit = null;
+  for (const g of S.data.goals) if (String(g.member) === String(id) && g.from_week <= week) hit = g;
+  return hit;
+}
+function weekStat(id, week) {
+  const rows = S.data.checkins.filter(c => String(c.member) === String(id) && c.week === week);
+  const done = rows.filter(c => c.type === 'done');
+  let rest = false;
+  for (const c of rows) { if (c.type === 'rest') rest = true; if (c.type === 'unrest') rest = false; }
+  const g = goalFor(id, week);
+  const target = g ? Number(g.target) : 0;
+  return { done: done.length, entries: done.slice().reverse(), rest, target, goal: g, hit: !rest && target > 0 && done.length >= target };
+}
+function view(id) {
+  const m = member(id);
+  const st = weekStat(id, S.data.thisWeek);
+  const g = st.goal || {};
+  const pct = st.rest || !st.target ? 0 : Math.min(100, Math.round(st.done / st.target * 100));
+  const left = Math.max(0, st.target - st.done);
+  const tone = st.rest ? 'rest' : st.hit ? 'good' : 'accent';
+  return Object.assign({}, st, {
+    id, name: m.name, tag: m.tag, initial: m.initial || m.name.slice(-1),
+    habit: g.habit || '', rule: g.rule || '',
+    goalText: st.target ? '每週 ' + st.target + ' 次' + (g.rule ? ' · ' + g.rule : '') : '還沒設定目標',
+    statusLabel: st.rest ? '休息週' : st.hit ? '達標' : st.done + ' / ' + st.target,
+    encourage: st.rest ? '休息週，安心放假' : st.hit ? '做到了，這週穩穩收下' : st.done === 0 ? '還沒開始。按一次，就有進度。' : '再 ' + left + ' 次就達標',
+    pct, tone, color: 'var(--' + tone + ')', soft: 'var(--' + tone + '-soft)',
+  });
+}
+
+// ====== render ======
+function render() {
+  if (!API) { app.innerHTML = shell('<div class="serif" style="font-size:28px">還差一步</div><p class="hint" style="font-size:13.5px">index.html 最上面的 API 還是空的。部署 Apps Script 後把 /exec 網址貼進去。</p>'); return; }
+  if (S.loading) { app.innerHTML = shell('<div class="spin" style="margin:120px auto"></div>'); return; }
+  if (S.loadError) { app.innerHTML = shell('<div class="serif" style="font-size:28px">連不上</div><p class="hint" style="font-size:13.5px">' + esc(S.loadError) + '</p><button class="btn cta" data-act="reload">再試一次</button>'); return; }
+  let html = S.screen === 'who' ? whoScreen() : S.screen === 'setup' ? setupScreen() : S.tab === 'week' ? weekScreen() : detailScreen();
+  if (S.screen === 'app') html += tabs();
+  if (S.sheet) html += sheetOverlay();
+  if (S.goalOpen) html += goalModal();
+  if (S.celebrate) html += celebrateModal();
+  app.innerHTML = html;
+}
+function shell(inner) { return '<div class="screen" style="padding-top:90px;max-width:420px;margin:0 auto">' + inner + '</div>'; }
+
+function whoScreen() {
+  return `<div class="screen" style="padding-top:calc(env(safe-area-inset-top) + 74px);padding-bottom:40px;display:flex;flex-direction:column">
+    <div class="serif" style="font-size:40px;line-height:1.08">Hi，<br>你是哪一位？</div>
+    <div style="margin-top:10px;font-size:14px;line-height:1.7;color:var(--ink2)">不用註冊。選一次，之後打開就是你。</div>
+    <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px">
+      ${S.data.members.map(m => `<button class="btn row card" data-act="pick" data-id="${esc(m.id)}" style="padding:16px;border-radius:20px;text-align:left;gap:14px;color:var(--ink);font:inherit">
+        <div style="width:48px;height:48px;border-radius:16px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">${esc(m.initial || m.name.slice(-1))}</div>
+        <div class="grow"><div style="font-size:17px;font-weight:700">${esc(m.name)}</div><div style="font-size:12.5px;color:var(--ink3);margin-top:2px">${esc(m.tag)}</div></div>
+        <div style="font-size:20px;color:var(--ink3)">›</div></button>`).join('')}
+    </div>
+    <div style="margin-top:auto;padding-top:24px" class="hint center">還有家人要加入？請在 Sheet 的 members 分頁加一列。</div>
+  </div>`;
+}
+
+function setupScreen() {
+  const o = S.ob, ready = !!(o.habit.trim() && o.rule.trim());
+  return `<div class="screen" style="padding-top:calc(env(safe-area-inset-top) + 66px);padding-bottom:28px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--accent)">STEP 2 / 2</div>
+    <div class="serif" style="margin-top:8px;font-size:32px;line-height:1.15">設定你的每週承諾</div>
+    <div style="margin-top:8px;font-size:13.5px;line-height:1.7;color:var(--ink2)">選一個守得住的數字。從這週開始，家人陪你一起。</div>
+
+    <div class="label" style="margin-top:22px">每週幾次<small>家人看的就是這個數字</small></div>
+    <div class="stepper" style="margin-top:10px">
+      <button class="btn stepbtn" data-act="ob-minus">−</button>
+      <div class="center"><div class="serif" id="ob-target" style="font-size:44px;line-height:1">${o.target}</div><div class="hint">次 / 每週</div></div>
+      <button class="btn stepbtn" data-act="ob-plus">＋</button>
+    </div>
+
+    <div class="label" style="margin-top:22px">你在養什麼習慣？<small>說出來，家人才知道怎麼陪你</small></div>
+    <div id="chips" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">${Object.keys(PRESETS).map(p => `<button class="btn chip ${o.habit === p ? 'on' : ''}" data-act="preset" data-p="${esc(p)}">${esc(p)}</button>`).join('')}</div>
+    <input id="ob-habit" class="field" style="margin-top:10px" value="${esc(o.habit)}" placeholder="或自己打，例如：游泳、吃夠蛋白質、不喝含糖飲料">
+
+    <div class="label" style="margin-top:22px">怎樣算一次？</div>
+    <div class="hint" style="margin-top:4px">寫給家人和未來的自己。夠具體，打卡時才不猶豫。</div>
+    <input id="ob-rule" class="field" style="margin-top:10px" value="${esc(o.rule)}" placeholder="例如：至少 30 分鐘、跑滿 5K、11 點前上床">
+
+    <div id="ob-sentence" style="margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--accent-soft);font-size:14px;line-height:1.6">${sentence()}</div>
+    <button id="ob-go" class="btn cta" style="margin-top:24px" data-act="finish" ${ready ? '' : 'disabled'}>${finishLabel()}</button>
+    <div class="hint center" style="margin-top:12px">先走完這一週。不合適，下週再調。</div>
+  </div>`;
+}
+function sentence() { const o = S.ob; return '你的承諾：<b>每週' + esc(o.habit.trim() || '（習慣名稱）') + ' ' + o.target + ' 次，每次' + esc(o.rule.trim() || '要怎樣算，還沒寫') + '</b>'; }
+function finishLabel() { const o = S.ob; return !o.habit.trim() ? '先寫下你在養什麼習慣' : !o.rule.trim() ? '先寫下怎樣算一次' : S.busy ? '儲存中…' : '開始使用'; }
+// 打字時只更新受影響的節點，避免整頁重畫害輸入框失焦
+function refreshSetup() {
+  const ready = !!(S.ob.habit.trim() && S.ob.rule.trim());
+  $('#ob-sentence').innerHTML = sentence();
+  const go = $('#ob-go'); go.textContent = finishLabel(); go.disabled = !ready || S.busy;
+  document.querySelectorAll('#chips .chip').forEach(c => c.classList.toggle('on', c.dataset.p === S.ob.habit));
+}
+
+function weekScreen() {
+  const me = view(S.me);
+  const others = S.data.members.filter(m => String(m.id) !== String(S.me)).map(m => view(m.id));
+  const end = addDays(S.data.thisWeek, 6);
+  const daysLeft = Math.round((Date.parse(end) - Date.parse(S.data.today)) / 86400000);
+  const reported = [me, ...others].filter(v => v.done > 0 || v.rest).length;
+  const anyone = S.data.checkins.some(c => c.week === S.data.thisWeek);
+  return `<div class="screen" style="padding-top:calc(env(safe-area-inset-top) + 62px)">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+      <div><div class="serif" style="font-size:30px;line-height:1.1">本週</div><div class="hint" style="margin-top:3px">${md(S.data.thisWeek)} – ${md(end)} · 還剩 ${daysLeft} 天</div></div>
+      <button class="btn" data-act="go-me" style="width:38px;height:38px;border-radius:13px;background:var(--surface2);font-size:15px;font-weight:700;color:var(--ink)">${esc(me.initial)}</button>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="label">我的 · ${esc(me.habit)} · ${esc(me.goalText)}</div>
+      ${me.rest ? `<div class="row" style="margin-top:12px"><div class="serif" style="font-size:40px;line-height:1;color:var(--rest)">休息中</div><div class="hint">這週不計成績<br>目標 ${me.target} 次下週再續</div></div>`
+      : `<div style="margin-top:12px;display:flex;align-items:baseline;gap:8px"><div class="serif" style="font-size:56px;line-height:.9">${me.done}</div><div style="font-size:15px;color:var(--ink3)">/ ${me.target} 次</div></div>
+         <div class="bar" style="margin-top:16px"><div style="width:${me.pct}%;background:${me.color}"></div></div>`}
+      <div style="margin-top:12px;font-size:14.5px;font-weight:500;line-height:1.55;color:${me.hit ? 'var(--good)' : 'var(--ink)'}">${esc(me.encourage)}</div>
+      <button class="btn cta" style="margin-top:18px;font-size:17px" data-act="open-sheet">${me.rest ? '取消休息，記一次' : me.hit ? '再多做一次' : '完成一次'}</button>
+    </div>
+
+    <div style="margin-top:26px;display:flex;align-items:center;justify-content:space-between"><div class="label">家人本週</div><div class="hint">${reported} / ${S.data.members.length} 已回報</div></div>
+    ${anyone ? '' : `<div style="margin-top:12px;padding:30px 22px;border-radius:24px;background:var(--surface);border:1px dashed var(--line)" class="center"><div class="serif" style="font-size:26px">新的一週</div><div style="margin-top:8px;font-size:13.5px;line-height:1.7;color:var(--ink2)">還沒有人打卡。<br>第一個開場的人，最能帶動大家。</div></div>`}
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      ${others.map(m => `<button class="btn" data-act="open" data-id="${esc(m.id)}" style="text-align:left;padding:16px 18px;border-radius:22px;background:var(--surface);border:1px solid var(--line);color:var(--ink);width:100%">
+        <div class="row">
+          <div style="width:40px;height:40px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;background:${m.soft};color:${m.color}">${esc(m.initial)}</div>
+          <div class="grow"><div style="font-size:15.5px;font-weight:700">${esc(m.name)}<span style="font-size:12px;font-weight:500;color:var(--ink3);margin-left:6px">${esc(m.tag)}</span></div><div class="hint" style="margin-top:2px">${esc(m.habit)} · ${esc(m.goalText)}</div></div>
+          <div style="font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:999px;white-space:nowrap;background:${m.soft};color:${m.color}">${esc(m.statusLabel)}</div>
+        </div>
+        <div class="bar" style="margin-top:14px;height:8px"><div style="width:${m.pct}%;background:${m.color};opacity:${m.rest ? .5 : 1}"></div></div>
+        <div style="margin-top:9px;font-size:12.5px;color:var(--ink2)">${esc(m.encourage)}</div>
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function detailScreen() {
+  const id = S.viewId || S.me, isMe = String(id) === String(S.me);
+  const v = view(id);
+  const keys = weekKeys();
+  const cells = keys.map((w, i) => {
+    const st = weekStat(id, w);
+    const noGoal = !st.target;
+    const ratio = noGoal ? 0 : Math.min(1, st.done / st.target);
+    const color = st.rest ? 'var(--rest)' : st.hit ? 'var(--good)' : 'var(--accent)';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px"><div style="width:100%;height:60px;border-radius:10px;background:var(--surface2);display:flex;align-items:flex-end;overflow:hidden"><div style="width:100%;border-radius:10px;height:${st.rest ? 14 : noGoal ? 0 : Math.max(st.done ? 14 : 0, Math.round(ratio * 60))}px;background:${color};opacity:${st.rest ? .55 : 1}"></div></div><div style="font-size:9.5px;color:var(--ink3)">${i === keys.length - 1 ? '本週' : md(w)}</div></div>`;
+  }).join('');
+  const scored = keys.map(w => weekStat(id, w)).filter(st => st.target && !st.rest);
+  const rate = scored.filter(st => st.hit).length + ' / ' + scored.length + ' 週';
+  const entries = v.entries;
+  return `<div class="screen" style="padding-top:calc(env(safe-area-inset-top) + 62px)">
+    ${isMe ? '' : '<button class="btn" data-act="go-week" style="background:none;font-size:13.5px;font-weight:500;color:var(--ink2);margin-bottom:14px;padding:0">‹ 本週</button>'}
+    <div class="row" style="gap:14px">
+      <div style="width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;background:${v.soft};color:${v.color}">${esc(v.initial)}</div>
+      <div><div class="serif" style="font-size:28px;line-height:1.15">${isMe ? '我的紀錄' : esc(v.name) + '的紀錄'}</div><div class="hint" style="margin-top:2px">${esc(v.habit)} · ${esc(v.goalText)}</div></div>
+    </div>
+    <div class="card" style="margin-top:20px;padding:20px;border-radius:24px">
+      <div style="display:flex;justify-content:space-between"><div class="label">近 8 週</div><div class="hint">達標 ${rate}</div></div>
+      <div style="margin-top:16px;display:flex;gap:6px;align-items:flex-end">${cells}</div>
+      <div style="margin-top:14px;display:flex;gap:14px;font-size:11px;color:var(--ink3)">
+        <span><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--good);margin-right:5px"></i>達標</span>
+        <span><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--accent);margin-right:5px"></i>有做但未滿</span>
+        <span><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--rest);margin-right:5px"></i>休息週</span>
+      </div>
+    </div>
+    ${isMe ? `<div style="margin-top:16px;padding:6px 18px;border-radius:24px;background:var(--surface);border:1px solid var(--line)">
+      <button class="btn" data-act="open-goal" style="width:100%;background:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);color:var(--ink)"><span style="font-size:14.5px;font-weight:500">調整目標</span><span class="hint" style="font-size:13px">${esc(v.goalText)} ›</span></button>
+      <button class="btn" data-act="toggle-rest" style="width:100%;background:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;color:var(--ink);text-align:left">
+        <span><span style="display:block;font-size:14.5px;font-weight:500">這週休息</span><span class="hint" style="display:block;margin-top:3px">生病或出遊時用。不算未達標，也不算達標。</span></span>
+        <span style="width:48px;height:29px;border-radius:999px;padding:3px;display:flex;flex-shrink:0;background:${v.rest ? 'var(--rest)' : 'var(--surface2)'}"><span style="width:23px;height:23px;border-radius:999px;background:#fff;margin-left:${v.rest ? 19 : 0}px;transition:margin-left .2s"></span></span>
+      </button></div>` : ''}
+    <div class="label" style="margin-top:26px">本週紀錄</div>
+    ${entries.length ? '' : `<div style="margin-top:12px;padding:26px;border-radius:22px;background:var(--surface);border:1px dashed var(--line);font-size:13.5px;line-height:1.7;color:var(--ink2)" class="center">${v.rest ? esc(v.name) + '這週按了休息，下週見。' : isMe ? '這週還沒有紀錄。回到「本週」按一下就好。' : esc(v.name) + '這週還沒有紀錄。'}</div>`}
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      ${entries.map(e => `<div class="entry">${e.photo_url ? `<img src="${esc(e.photo_url)}" alt="" loading="lazy">` : '<div class="noimg"></div>'}
+        <div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><div style="font-size:14.5px;font-weight:700">${esc(v.habit)}</div><div style="font-size:11.5px;color:var(--ink3);white-space:nowrap">${weekday(e.ts)}</div></div>
+        <div style="margin-top:4px;font-size:12.5px;color:var(--ink2);line-height:1.6">${esc([e.note, e.minutes ? e.minutes + ' 分鐘' : ''].filter(Boolean).join(' · ') || '完成一次')}</div></div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function tabs() {
+  return `<div class="tabs"><button class="btn tab ${S.tab === 'week' ? 'on' : ''}" data-act="go-week"><div>◍</div>本週</button><button class="btn tab ${S.tab === 'detail' && String(S.viewId || S.me) === String(S.me) ? 'on' : ''}" data-act="go-me"><div>◔</div>我的</button></div>`;
+}
+
+function sheetOverlay() {
+  const me = view(S.me), f = S.form;
+  let inner = '';
+  if (S.sheet === 'form') {
+    const custom = f.minutes && !DUR_CHIPS.includes(f.minutes);
+    inner = `<div style="display:flex;flex-direction:column;gap:18px">
+      <div><div class="serif" style="font-size:26px">${esc(me.habit)}，完成</div><div class="hint" style="margin-top:3px;font-size:12.5px">拍一張給家人看，一起慶祝這一次。</div></div>
+      <div class="photo-box" data-act="pick-photo">${f.photo ? `<img src="${f.photo}" alt=""><span class="tag">✓ 已附上，點一下換一張</span>` : '<div style="font-size:26px">＋</div><div style="font-size:12.5px;font-weight:500">拍照或選一張照片</div>'}</div>
+      <div><div class="label" style="font-size:12px;margin-bottom:9px">做了多久<small>選填，只是紀錄</small></div>
+        <div style="display:flex;gap:8px">${DUR_CHIPS.map(d => `<button class="btn chip ${f.minutes === d ? 'on' : ''}" data-act="dur" data-d="${d}" style="flex:1;text-align:center;font-weight:700;padding:11px 0;border-radius:14px">${d} 分</button>`).join('')}
+        <input id="dur-input" type="number" inputmode="numeric" min="1" placeholder="分鐘" value="${custom ? f.minutes : ''}" class="field" style="flex:1.2;text-align:center;font-weight:700;padding:11px 6px;border-radius:14px;${custom ? 'background:var(--accent);color:var(--on-accent);border-color:var(--accent)' : ''}"></div></div>
+      <textarea id="note-input" class="field" placeholder="想說什麼（選填）" style="min-height:64px;resize:none;border-radius:18px;font-size:13.5px;line-height:1.6">${esc(f.note)}</textarea>
+      <button class="btn cta" data-act="submit" ${f.photo ? '' : 'disabled'}>${f.photo ? '送出' : '先附一張照片'}</button></div>`;
+  } else if (S.sheet === 'sending') {
+    inner = `<div style="padding:26px 0 12px;display:flex;flex-direction:column;align-items:center;gap:16px"><div class="spin"></div><div style="font-size:16px;font-weight:700">送出中…</div><div class="hint center" style="font-size:12.5px;line-height:1.7">照片上傳中，大約幾秒。</div></div>`;
+  } else if (S.sheet === 'error') {
+    inner = `<div style="padding:8px 0 4px;display:flex;flex-direction:column;gap:14px"><div class="serif" style="font-size:26px">沒送出去</div><div style="font-size:13.5px;line-height:1.75;color:var(--ink2)">這筆已存在手機裡，不會消失。網路穩了再送一次。</div>
+      <div style="display:flex;gap:10px"><button class="btn" data-act="close-sheet" style="flex:1;padding:16px;border-radius:18px;border:1px solid var(--line);background:none;font-size:15px;font-weight:700;color:var(--ink2)">稍後再說</button><button class="btn cta" data-act="retry" style="flex:1.4;width:auto;font-size:15px">再試一次</button></div></div>`;
+  } else if (S.sheet === 'done') {
+    inner = `<div class="center" style="padding:6px 0 4px;display:flex;flex-direction:column;gap:14px;align-items:center;animation:pop .3s ease">
+      <div style="width:62px;height:62px;border-radius:999px;background:var(--good-soft);color:var(--good);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">✓</div>
+      <div class="serif" style="font-size:28px;line-height:1.2">${me.hit ? '第 ' + me.done + ' 次，達標' : '記下了，第 ' + me.done + ' 次'}</div>
+      <div style="font-size:13.5px;line-height:1.75;color:var(--ink2)">${me.hit ? '家人打開就看得到。這週你收工了。' : '再 ' + Math.max(0, me.target - me.done) + ' 次就達標。家人打開就看得到。'}</div>
+      <button class="btn cta" data-act="close-sheet" style="font-size:15.5px">好</button></div>`;
+  }
+  return `<div class="overlay" data-act="close-sheet"><div class="sheet" data-stop><div class="grip"></div>${inner}</div></div>`;
+}
+
+function goalModal() {
+  const me = view(S.me), lower = S.goalDraft < me.target;
+  const note = lower ? '調低從下週生效，這週維持 ' + me.target + ' 次。說好的，先守住。' : S.goalDraft > me.target ? '調高立刻生效，這週就是 ' + S.goalDraft + ' 次。' : '和目前的目標一樣。';
+  return `<div class="overlay center" data-act="close-goal"><div class="modal" data-stop>
+    <div class="serif" style="font-size:26px">每週承諾</div>
+    <div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between">
+      <button class="btn stepbtn" data-act="goal-minus" style="width:46px;height:46px">−</button>
+      <div class="center"><div class="serif" style="font-size:46px;line-height:1">${S.goalDraft}</div><div class="hint">次 / 每週</div></div>
+      <button class="btn stepbtn" data-act="goal-plus" style="width:46px;height:46px">＋</button>
+    </div>
+    <div style="margin-top:16px;padding:13px 15px;border-radius:16px;font-size:12.5px;line-height:1.7;background:${lower ? 'var(--rest-soft)' : 'var(--surface2)'};color:${lower ? 'var(--ink)' : 'var(--ink2)'}">${esc(note)}</div>
+    <button class="btn cta" data-act="save-goal" style="margin-top:18px;font-size:15.5px" ${S.busy ? 'disabled' : ''}>${S.busy ? '儲存中…' : '儲存'}</button>
+    <button class="btn" data-act="close-goal" style="width:100%;margin-top:10px;background:none;font-size:13px;color:var(--ink3)">取消</button></div></div>`;
+}
+
+function celebrateModal() {
+  const me = view(S.me);
+  const others = S.data.members.filter(m => String(m.id) !== String(S.me)).map(m => view(m.id));
+  const line = others.map(o => o.name + (o.rest ? '這週休息' : o.hit ? '也達標' : '還在努力')).join('，');
+  return `<div class="overlay center" data-act="close-celebrate"><div class="modal center" style="padding:32px 24px;animation:pop .34s cubic-bezier(.2,.9,.2,1)">
+    <div class="serif" style="font-style:italic;font-size:44px;line-height:1;color:var(--good)">${me.done} / ${me.target}</div>
+    <div class="serif" style="margin-top:14px;font-size:27px">這週達標了</div>
+    <div style="margin-top:10px;font-size:13.5px;line-height:1.8;color:var(--ink2)">${esc(line)}。<br>這樣的一週，很好。</div>
+    <button class="btn cta" data-act="close-celebrate" style="margin-top:22px;background:var(--good);color:#fff;font-size:15.5px">收下</button></div></div>`;
+}
+
+// ====== 照片：縮到最長邊 1280、JPEG 0.8，不然上傳會等很久 ======
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const max = 1280, s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+// ====== 動作 ======
+async function submit() {
+  const body = { action: 'checkin', member: S.me, minutes: S.form.minutes || '', note: S.form.note.trim(), photo: S.form.photo };
+  S.sheet = 'sending'; render();
+  try {
+    S.data = await apiPost(body);
+    S.sheet = 'done';
+  } catch (e) {
+    setQueue(queue().concat([body]));
+    S.sheet = 'error';
+  }
+  render();
+}
+
+async function act(el) {
+  const a = el.dataset.act;
+  switch (a) {
+    case 'reload': location.reload(); break;
+    case 'pick': {
+      S.me = el.dataset.id; localStorage.setItem('me', S.me);
+      const g = goalFor(S.me, S.data.thisWeek) || goalFor(S.me, addDays(S.data.thisWeek, 7));
+      if (g) { S.screen = 'app'; S.tab = 'week'; }
+      else { S.screen = 'setup'; }
+      break;
+    }
+    case 'ob-minus': S.ob.target = Math.max(1, S.ob.target - 1); $('#ob-target').textContent = S.ob.target; refreshSetup(); return;
+    case 'ob-plus': S.ob.target += 1; $('#ob-target').textContent = S.ob.target; refreshSetup(); return;
+    case 'preset': {
+      const p = el.dataset.p, keep = S.ob.rule.trim() && !PRESET_RULES.includes(S.ob.rule.trim());
+      S.ob.habit = p; if (!keep) S.ob.rule = PRESETS[p];
+      $('#ob-habit').value = S.ob.habit; $('#ob-rule').value = S.ob.rule; refreshSetup(); return;
+    }
+    case 'finish': {
+      if (S.busy || !(S.ob.habit.trim() && S.ob.rule.trim())) return;
+      S.busy = true; refreshSetup();
+      try { S.data = await apiPost({ action: 'goal', member: S.me, habit: S.ob.habit.trim(), target: S.ob.target, rule: S.ob.rule.trim() }); S.screen = 'app'; S.tab = 'week'; }
+      catch (e) { alert('存不進去：' + e.message); }
+      S.busy = false; break;
+    }
+    case 'go-week': S.tab = 'week'; S.viewId = null; break;
+    case 'go-me': S.tab = 'detail'; S.viewId = S.me; break;
+    case 'open': S.tab = 'detail'; S.viewId = el.dataset.id; break;
+    case 'open-sheet': S.form = { photo: '', minutes: 0, note: '' }; S.sheet = 'form'; break;
+    case 'close-sheet': {
+      const wasDone = S.sheet === 'done';
+      S.sheet = null;
+      const v = view(S.me);
+      if (wasDone && v.hit && v.done === v.target) S.celebrate = true;
+      break;
+    }
+    case 'pick-photo': $('#file').click(); return;
+    case 'dur': { const d = Number(el.dataset.d); S.form.minutes = S.form.minutes === d ? 0 : d; break; }
+    case 'submit': if (!S.form.photo) return; submit(); return;
+    case 'retry': { S.sheet = 'sending'; render(); const q = queue(); if (!q.length) { S.sheet = null; break; } setQueue(q.slice(0, -1)); S.form = { photo: q[q.length - 1].photo, minutes: q[q.length - 1].minutes || 0, note: q[q.length - 1].note || '' }; submit(); return; }
+    case 'open-goal': S.goalDraft = view(S.me).target || 3; S.goalOpen = true; break;
+    case 'close-goal': S.goalOpen = false; break;
+    case 'goal-minus': S.goalDraft = Math.max(1, S.goalDraft - 1); break;
+    case 'goal-plus': S.goalDraft += 1; break;
+    case 'save-goal': {
+      if (S.busy) return;
+      const g = view(S.me).goal; S.busy = true; render();
+      try { S.data = await apiPost({ action: 'goal', member: S.me, habit: g.habit, target: S.goalDraft, rule: g.rule }); S.goalOpen = false; }
+      catch (e) { alert('存不進去：' + e.message); }
+      S.busy = false; break;
+    }
+    case 'toggle-rest': {
+      if (S.busy) return;
+      const on = !view(S.me).rest; S.busy = true;
+      try { S.data = await apiPost({ action: 'rest', member: S.me, on }); }
+      catch (e) { alert('存不進去：' + e.message); }
+      S.busy = false; break;
+    }
+    case 'close-celebrate': S.celebrate = false; break;
+    default: return;
+  }
+  render();
+}
+
+app.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  // 點在 sheet / modal 內容上不要關掉 overlay
+  if (el.classList.contains('overlay') && e.target.closest('[data-stop]')) return;
+  act(el);
+});
+app.addEventListener('input', (e) => {
+  const t = e.target;
+  if (t.id === 'ob-habit') { S.ob.habit = t.value; refreshSetup(); }
+  else if (t.id === 'ob-rule') { S.ob.rule = t.value; refreshSetup(); }
+  else if (t.id === 'note-input') S.form.note = t.value;
+  else if (t.id === 'dur-input') {
+    S.form.minutes = Math.max(0, parseInt(t.value, 10) || 0);
+    document.querySelectorAll('[data-act="dur"]').forEach(c => c.classList.toggle('on', Number(c.dataset.d) === S.form.minutes));
+    const custom = S.form.minutes && !DUR_CHIPS.includes(S.form.minutes);
+    t.style.cssText = custom ? 'flex:1.2;text-align:center;font-weight:700;padding:11px 6px;border-radius:14px;background:var(--accent);color:var(--on-accent);border-color:var(--accent)' : 'flex:1.2;text-align:center;font-weight:700;padding:11px 6px;border-radius:14px';
+  }
+});
+$('#file').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try { S.form.photo = await shrink(f); render(); } catch { alert('這張照片讀不出來，換一張試試。'); }
+});
+
+// ====== 啟動 ======
+(async function boot() {
+  render();
+  if (!API) return;
+  try {
+    S.data = await apiGet();
+    await flushQueue();
+    if (S.me && member(S.me)) {
+      const g = goalFor(S.me, S.data.thisWeek) || goalFor(S.me, addDays(S.data.thisWeek, 7));
+      S.screen = g ? 'app' : 'setup';
+    } else { S.me = null; S.screen = 'who'; }
+  } catch (e) { S.loadError = e.message; }
+  S.loading = false; render();
+})();
+</script>
+</body>
+</html>
